@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>C64 Timer</title>
+        <link rel="stylesheet" href="c64timer.css">
+    </head>
+    <body>
+        <div class="basic-outer">
+            <form>
+                <section>
+                    <span>
+                        <label for="time">Time</label>
+                        <input id="time" name="time" type="time" onchange="updateTime(parseTime(event.target.value))">
+                    </span>
+                    <span>
+                        <label for="message">Message</label>
+                        <input id="message" name="message" type="text" placeholder="e.g. 'time left'" onchange="updateMessage(event.target.value)">
+                    </span>
+                    <span>
+                        <input id="flicker" name="flicker" type="checkbox" onclick="updateFlicker(event.target.checked)">
+                        <label for="flicker">CRT Flicker</label>
+                    </span>
+                    <span>
+                        <input id="shadow" name="shadow" type="checkbox" onclick="updateShadow(event.target.checked)">
+                        <label for="shadow">CRT Shadow</label>
+                    </span>
+                    <span>
+                        <input id="hide" name="hide" type="checkbox" onclick="updateFormHidden(event.target.checked)">
+                        <label for="hide">Hide This Form</label>
+                    </span>
+                    <button type="button" id="apply" onclick="applyOptions()">Apply</button>
+                </section>
+            </form>
+            <div class="basic-inner">
+                <div class="c64 center">**** COMMODORE 64 BASIC V2 ****</div>
+                <div class="c64 center">64K RAM SYSTEM  38911 BASIC BYTES FREE</div>
+                <div class="c64 time-and-message">NO TIMER SET.</div>
+                <div class="c64 flicker-on-off">CRT FLICKER ON - PRESS "F" TO TOGGLE</div>
+                <div class="c64 text-shadow-on-off">CRT SHADOW ON - PRESS "S" TO TOGGLE</div>
+                <div class="c64 hidden unhide-info">PRESS ESC TO SHOW OPTIONS.</div>
+            </div>
+        </div>
+        <script src="c64timer.js"></script>
+    </body>
+</html>
