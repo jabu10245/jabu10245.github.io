@@ -11,5 +11,8 @@
   "packageManager": "yarn@3.2.1",
   "devDependencies": {
     "http-server": "^14.1.1"
+  },
+  "dependencies": {
+    "tmi.js": "^1.8.5"
   }
 }
