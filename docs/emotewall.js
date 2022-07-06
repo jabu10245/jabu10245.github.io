@@ -1,9 +1,17 @@
+const DEFAULT_MAX_EMOTES = 20;
+
 window.addEventListener("load", () => {
-    const { debug, channelName, maxEmotes } = readOptionsFromParameters();
+    const { debug, channelName, maxEmotes, editOptions } = readOptionsFromParameters();
 
     if (!channelName?.length) {
-        console.warn('No channel name given!');
+        showForm({ debug, channelName, maxEmotes, editOptions })
+            .then(options => writeParametersFromOptions(options));
         return;
+    } else if (editOptions) {
+        showForm({ debug, channelName, maxEmotes, editOptions })
+            .then(options => writeParametersFromOptions(options));
+    } else {
+        showOptions({ debug, channelName, maxEmotes, editOptions });
     }
 
     const emoteContext = {
@@ -65,8 +73,9 @@ window.addEventListener("load", () => {
 function readOptionsFromParameters() {
     const options = {
         debug: false,
-        maxEmotes: 20,
+        maxEmotes: 0,
         channelName: "",
+        editOptions: false,
     };
 
     if (window.location.search) {
@@ -84,24 +93,91 @@ function readOptionsFromParameters() {
         const max = params.get("max");
         if (!!max) {
             options.maxEmotes = parseInt(max);
+        } else {
+            options.maxEmotes = DEFAULT_MAX_EMOTES;
         }
+
+        if (!!params.get("edit")) {
+            options.editOptions = true;
+        }
+    } else {
+        options.maxEmotes = DEFAULT_MAX_EMOTES;
     }
 
     return options;
 }
 
 function writeParametersFromOptions(options) {
+    console.log('*** options', options);
     const params = new URLSearchParams();
     if (options.debug) {
         params.set("d", "1");
     }
-    if (options.maxEmotes) {
-        params.set("max", `${options.maxEmotes}`);
-    }
+    params.set("max", `${options.maxEmotes}`);
     if (options.channelName?.length) {
         params.set("c", options.channelName);
     }
+    if (options.editOptions) {
+        params.set("edit", "1");
+    }
     window.location.search = params.toString();
+}
+
+async function showForm(options) {
+    return new Promise(resolve => {
+        const channelNameTextfield = document.querySelector('#channelName');
+        channelNameTextfield.value = options.channelName;
+
+        const debugCheckbox = document.querySelector('#debug');
+        debugCheckbox.checked = options.debug;
+
+        const maxEmotesTextfield = document.querySelector('#maxEmotes');
+        maxEmotesTextfield.value = options.maxEmotes;
+
+        const apply = document.querySelector('#apply');
+        apply.addEventListener("click", () => {
+            const channelName = channelNameTextfield.value;
+            const debug = debugCheckbox.checked;
+            const maxEmotes = parseInt(maxEmotesTextfield.value) ?? 0;
+            resolve({ channelName, debug, maxEmotes });
+        });
+    });
+}
+
+function showOptions(options) {
+    const channelName = document.createElement('div');
+    channelName.innerHTML = `<code>channelName = ${options.channelName}</code>`;
+    document.body.appendChild(channelName);
+
+    const debug = document.createElement('div');
+    debug.innerHTML = `<code>debug = ${options.debug ? "on" : "off"}</code>`;
+    document.body.appendChild(debug);
+
+    const maxEmotes = document.createElement('div');
+    maxEmotes.innerHTML = `<code>maxEmotes = ${options.maxEmotes}</code>`;
+    document.body.appendChild(maxEmotes);
+
+    const escapeHint = document.createElement('div');
+    escapeHint.innerHTML = `<code>Press ESC to edit options.</code>`;
+    document.body.appendChild(escapeHint);
+
+    const form = document.querySelector('form');
+    document.body.removeChild(form);
+
+    setTimeout(() => {
+        document.body.removeChild(channelName);
+        document.body.removeChild(debug);
+        document.body.removeChild(maxEmotes);
+        document.body.removeChild(escapeHint);
+    }, 2000);
+
+    document.body.onkeyup = event => {
+        const { key } = event;
+        
+        if (key === "Escape") {
+            writeParametersFromOptions({ ...options, editOptions: true });
+        }
+    };
 }
 
 function collectEmotes(tags) {

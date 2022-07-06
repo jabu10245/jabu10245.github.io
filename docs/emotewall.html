@@ -7,6 +7,23 @@
         <link rel="stylesheet" href="emotewall.css">
     </head>
     <body>
+        <form>
+            <section>
+                <div>
+                    <label for="channelName">Channel Name:</label>
+                    <input id="channelName" name="channelName" type="text" autofocus>
+                </div>
+                <div>
+                    <input id="debug" name="debug" type="checkbox">
+                    <label for="debug">Debug</label>
+                </div>
+                <div>
+                    <label for="maxEmotes">Max Emotes:</label>
+                    <input id="maxEmotes" name="maxEmotes" type="number">
+                </div>
+                <button id="apply" type="button">Apply</button>
+            </section>
+        </form>
         <script src="tmi.min.js"></script>
         <script src="emotewall.js"></script>
     </body>
