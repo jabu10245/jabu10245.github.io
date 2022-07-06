@@ -1,0 +1,29 @@
+.emote, .emoji {
+    display: inline-block;
+    position: absolute;
+    transition: top 10s ease-out, left 10s ease-out, opacity 2s ease-out;
+    width: 112px;
+    height: 112px;
+}
+
+.emote.small, .emote.small img {
+    width: 56px;
+    height: 56px;
+}
+
+.emote.medium, .emote.medium img {
+    width: 84px;
+    height: 84px;
+}
+
+.emoji {
+    font-size: 800%;
+}
+
+.emoji.medium {
+    font-size: 400%;
+}
+
+.emoji.small {
+    font-size: 200%;
+}
