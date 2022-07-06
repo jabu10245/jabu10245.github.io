@@ -191,7 +191,11 @@ async function removeImage(emote) {
     return new Promise(resolve => setTimeout(() => {
         document.body.removeChild(emote.element);
         emote.context.count.total -= 1;
-        emote.context.count[emote.url] -= 1;
+        if (emote.url?.length) {
+            emote.context.count[emote.url] -= 1;
+        } else if (emote.emoji?.length) {
+            emote.context.count[emote.emoji] -= 1;
+        }
         resolve(emote);
     }, delay));
 }
