@@ -1,3 +1,7 @@
+body {
+    overflow: hidden;
+}
+
 .emote, .emoji {
     display: inline-block;
     position: absolute;
