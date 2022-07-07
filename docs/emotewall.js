@@ -277,8 +277,28 @@ async function removeImage(emote) {
 }
 
 function simpleMovingEmotes(emote) {
+
+    const randomPercentage = (minDelta) => {
+        const a = Math.random() * 100;
+        const b = Math.random() * 100;
+        const delta = Math.abs(a - b);
+        if (minDelta < delta) {
+            return [a, b];
+        } else {
+            const d = (minDelta - delta) / 2;
+            if (a < b) {
+                return [a - d, b + d];
+            } else {
+                return [a + d, b - d];
+            }
+        }
+    };
+
     emote.time.untilAppending = Math.random() * 5000; // append after random delay up to 5s
     emote.time.untilRemoval = 10000;                  // remove after 10s
+
+    const [topStart, topEnd] = randomPercentage(20);
+    const [leftStart, leftEnd] = randomPercentage(15);
 
     if (emote.url?.length) {
         emote.element.classList.add('emote');
@@ -286,14 +306,14 @@ function simpleMovingEmotes(emote) {
         emote.element.classList.add('emoji');
     }
     emote.element.classList.add(emote.size);
-    emote.element.style.top = `${Math.random() * 99}%`;
-    emote.element.style.left = `${Math.random() * 99}%`;
+    emote.element.style.top = `${topStart}%`;
+    emote.element.style.left = `${leftStart}%`;
     emote.element.style.opacity = 0;
 
     // Start moving them after 200ms, which takes 10s.
     setTimeout(() => {
-        emote.element.style.top = `${Math.random() * 99}%`;
-        emote.element.style.left = `${Math.random() * 99}%`;
+        emote.element.style.top = `${topEnd}%`;
+        emote.element.style.left = `${leftEnd}%`;
         emote.element.style.opacity = 1;
     }, emote.time.untilAppending + 200);
 
