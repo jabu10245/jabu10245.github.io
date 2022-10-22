@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Emote Icons</title>
+        <link rel="stylesheet" href="emote-icons.css">
+    </head>
+    <body>
+        <div id="form-replacement" class="hidden">ESC to edit options</div>
+        <div id="emote-container" class="hidden"></div>
+
+        <form>
+            <section>
+                <div>
+                    <label for="channelName">Channel Name: </label>
+                    <input id="channelName" name="channelName" type="text">
+                </div>
+                <div>
+                    <label for="iconCount">Icon Count: </label>
+                    <input id="iconCount" name="iconCount" type="number">
+                </div>
+                <div>
+                    <label for="defaultEmote">Default Emote: </label>
+                    <input id="defaultEmote" name="defaultEmote" type="text">
+                </div>
+                <div>
+                    <input id="debug" name="debug" type="checkbox">
+                    <label for="debug">Debug Mode</label>
+                </div>
+            </section>
+            <footer>
+                <button id="apply" type="submit">Apply</button>
+            </footer>
+        </form>
+
+        <script src="tmi.min.js"></script>
+        <script src="emote-icons.js"></script>
+    </body>
+</html>
