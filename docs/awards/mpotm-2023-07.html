@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Cock of the Month</title>
+        <title>Micro Penis of the Month</title>
         <style>
             @import "https://fonts.googleapis.com/css?family=Oswald:400,700";
 
@@ -295,6 +295,44 @@
             .hidden {
                 display: none;
             }
+
+            footer {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                margin: 5rem 20%;
+            }
+
+            footer .disabled-link {
+                color: gray;
+            }
+
+            footer ul {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                margin-left: -1px;
+            }
+
+            footer li {
+                flex-grow: 1;
+                flex-basis: auto;
+                margin: .25em 0;
+                padding: 0 1em;
+                text-align: center;
+                border-left: 1px solid #ccc;
+                list-style: none;
+            }
+
+            footer li:first-child {
+                border-left: none;
+            }
         </style>
     </head>
     <body>
@@ -324,6 +362,19 @@
                 <div class="magnifying-glass"></div>
             </div>
         </div>
+
+        <footer>
+            <div>
+                <span class="disabled-link">&lt; June 2023</span>
+            </div>
+            <ul>
+                <li><a href="cotm-2023-07.html">Cock</a></li>
+                <li><a href="botm-2023-07.html">Breasts</a></li>
+            </ul>
+            <div>
+                <span class="disabled-link">August 2023 &gt;</span>
+            </div>
+        </footer>
 
         <script>
             function startRibbonAnimation() {
