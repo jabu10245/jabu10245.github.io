@@ -363,7 +363,7 @@
             </div>
         </div>
 
-        <footer>
+        <footer id="page-footer">
             <div>
                 <span class="disabled-link">&lt; June 2023</span>
             </div>
@@ -380,6 +380,11 @@
             function startRibbonAnimation() {
                 const element = document.getElementsByClassName('ribbon')[0];
                 element.classList.add('active');
+
+                const params = new URLSearchParams(window.location.search);
+                if (params.has('nofooter')) {
+                    document.getElementById('page-footer').remove();
+                }
             }
 
             window.addEventListener('load', startRibbonAnimation);
