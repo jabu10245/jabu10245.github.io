@@ -1,5 +1,8 @@
-const USERNAME = "heart_of_mithril";
-const FILENAME = "cotm-2023-07";
+const COTM_USERNAME = "heart_of_mithril";
+const MPOTM_USERNAME = "1Byte2Bits";
+const MONTH = "2023-07";
+const COTM_FILENAME = `cotm-${MONTH}`;
+const MPOTM_FILENAME = `mpotm-${MONTH}`;
 const DURATION = 20_000; // milliseconds
 const CLIENT_ID = "a3o2mhosy9osxod70iwb4awr9uw95y";
 const OAUTH_STATE = "auto-award-oauth-state";
@@ -13,13 +16,13 @@ function setup() {
 
     if (params.has('test')) {
         const testDuration = 5_000; // milliseconds
-        showAward(`${FILENAME}?nofooter`, testDuration);
-        setInterval(() => showAward(`${FILENAME}?nofooter`, testDuration), testDuration * 2);
+        showAward(`${COTM_FILENAME}?nofooter`, testDuration);
+        setInterval(() => showAward(`${COTM_FILENAME}?nofooter`, testDuration), testDuration * 2);
     }
     
     else if (params.has('token')) {
         connect(params.get('token'))
-            .then(() => console.log(`Connected to chat and waiting for a message from ${USERNAME}.`))
+            .then(() => console.log(`Connected to chat and waiting for a message from ${COTM_USERNAME}.`))
             .catch(() => createAuthenticateButton("Error connecting to Twitch"));
     }
     
@@ -177,11 +180,13 @@ async function connect(token) {
             const moderator = !!user?.mod;
 
             if (message === '!cotm' && (broadcaster || moderator)) {
-                showAward(`${FILENAME}?nofooter`, DURATION);
+                showAward(`${COTM_FILENAME}?nofooter`, DURATION);
+            } else if (message === '!mpotm' && (broadcaster || moderator)) {
+                showAward(`${MPOTM_FILENAME}?nofooter`, DURATION);
             }
 
-            else if (username === USERNAME && !didUserMessage()) {
-                showAward(`${FILENAME}?nofooter`, DURATION);
+            else if (username === COTM_USERNAME && !didUserMessage()) {
+                showAward(`${COTM_FILENAME}?nofooter`, DURATION);
                 userMessaged();
             }
         }
