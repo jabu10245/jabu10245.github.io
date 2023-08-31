@@ -1,12 +1,16 @@
-const COTM_USERNAME = "heart_of_mithril";
-const MPOTM_USERNAME = "1Byte2Bits";
-const MONTH = "2023-07";
+const COTM_USERNAME = "TonilTadara";
+const MPOTM_USERNAME = "Jabu10245";
+const BOTH_USERNAME = "ThePS1Addict";
+const IBTCOTM_USERNAME = "NERIS_EXE";
+const MONTH = "2023-08";
 const COTM_FILENAME = `cotm-${MONTH}`;
 const MPOTM_FILENAME = `mpotm-${MONTH}`;
+const BOTM_FILENAME = `botm-${MONTH}`;
+const IBTCOTM_FILENAME = `ibtcotm-${MONTH}`;
 const DURATION = 20_000; // milliseconds
 const CLIENT_ID = "a3o2mhosy9osxod70iwb4awr9uw95y";
 const OAUTH_STATE = "auto-award-oauth-state";
-const CHANNEL_NAME = "benez256";
+const CHANNEL_NAME = "jabu10245";
 
 function setup() {
     removeAuthenticateButton();
@@ -22,7 +26,7 @@ function setup() {
     
     else if (params.has('token')) {
         connect(params.get('token'))
-            .then(() => console.log(`Connected to chat and waiting for a message from ${COTM_USERNAME}.`))
+            .then(() => console.log(`Connected to chat and waiting for a message from ${COTM_USERNAME} or ${BOTH_USERNAME}.`))
             .catch(() => createAuthenticateButton("Error connecting to Twitch"));
     }
     
@@ -70,12 +74,16 @@ function showAward(filename, duration) {
     run().then(_ => {}).catch(console.error);
 }
 
-function didUserMessage() {
-    return sessionStorage.getItem('messaged') === 'true';
+function didUserMessage(name) {
+    const item = sessionStorage.getItem('messaged_names');
+    const names = (item ?? '').split('::');
+    return names.includes(name);
 }
 
-function userMessaged() {
-    sessionStorage.setItem('messaged', 'true');
+function userMessaged(name) {
+    const item = sessionStorage.getItem('messaged_names');
+    const names = (item ?? '').split('::');
+    sessionStorage.setItem('messaged_names', [...names, name].join('::'));
 }
 
 function requestAuthentication() {
@@ -183,11 +191,20 @@ async function connect(token) {
                 showAward(`${COTM_FILENAME}?nofooter`, DURATION);
             } else if (message === '!mpotm' && (broadcaster || moderator)) {
                 showAward(`${MPOTM_FILENAME}?nofooter`, DURATION);
+            } else if (message === '!botm' && (broadcaster || moderator)) {
+                showAward(`${BOTM_FILENAME}?nofooter`, DURATION);
+            } else if (message === '!ibtcotm' && (broadcaster || moderator)) {
+                showAward(`${IBTCOTM_FILENAME}?nofooter`, DURATION);
             }
 
-            else if (username === COTM_USERNAME && !didUserMessage()) {
+            else if (username === COTM_USERNAME && !didUserMessage(username)) {
                 showAward(`${COTM_FILENAME}?nofooter`, DURATION);
-                userMessaged();
+                userMessaged(username);
+            }
+
+            else if (username === BOTH_USERNAME && !didUserMessage(username)) {
+                showAward(`${BOTM_FILENAME}?nofooter`, DURATION);
+                userMessaged(username);
             }
         }
     });
