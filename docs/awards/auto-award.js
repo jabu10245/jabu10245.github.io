@@ -10,7 +10,7 @@ const IBTCOTM_FILENAME = `ibtcotm-${MONTH}`;
 const DURATION = 20_000; // milliseconds
 const CLIENT_ID = "a3o2mhosy9osxod70iwb4awr9uw95y";
 const OAUTH_STATE = "auto-award-oauth-state";
-const CHANNEL_NAME = "jabu10245";
+const CHANNEL_NAME = "benez256";
 
 function setup() {
     removeAuthenticateButton();
