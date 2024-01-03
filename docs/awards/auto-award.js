@@ -74,6 +74,12 @@ function showAward(filename, duration) {
     run().then(_ => {}).catch(console.error);
 }
 
+function fart() {
+    const audioPlayer = document.getElementById('audio');
+    audioPlayer.src = './fart.mp3';
+    audioPlayer.play().then(() => console.log('playing sfx')).catch(console.error);
+}
+
 function didUserMessage(name) {
     const item = sessionStorage.getItem('messaged_names');
     const names = (item ?? '').split('::');
@@ -205,6 +211,10 @@ async function connect(token) {
             else if (username === BOTH_USERNAME && !didUserMessage(username)) {
                 showAward(`${BOTM_FILENAME}?nofooter`, DURATION);
                 userMessaged(username);
+            }
+
+            else if (username === 'jabu10245' && message === '!fart') {
+                setTimeout(fart, 2000);
             }
         }
     });
