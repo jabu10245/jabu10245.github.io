@@ -1,8 +1,8 @@
-const COTM_USERNAME = "heart_of_mithril".toLowerCase();
-const MPOTM_USERNAME = "benez256".toLowerCase();
+const COTM_USERNAME = "imicat".toLowerCase();
+const MPOTM_USERNAME = "toni68k".toLowerCase();
 const BOTH_USERNAME = "Major_Postal".toLowerCase();
-const IBTCOTM_USERNAME = "PointThenClick".toLowerCase();
-const MONTH = "2023-12";
+const IBTCOTM_USERNAME = "ThePS1Addict".toLowerCase();
+const MONTH = "2024-01";
 const COTM_FILENAME = `cotm-${MONTH}`;
 const MPOTM_FILENAME = `mpotm-${MONTH}`;
 const BOTM_FILENAME = `botm-${MONTH}`;
@@ -78,6 +78,12 @@ function fart() {
     const audioPlayer = document.getElementById('audio');
     audioPlayer.src = './fart.mp3';
     audioPlayer.play().then(() => console.log('playing sfx')).catch(console.error);
+}
+
+function anySound(name) {
+    const audioPlayer = document.getElementById('audio');
+    audioPlayer.src = './' + name + '.mp3';
+    audioPlayer.play().then(() => console.log('playing sfx ' + name)).catch(console.error);
 }
 
 function didUserMessage(name) {
@@ -215,6 +221,18 @@ async function connect(token) {
 
             else if (username === 'jabu10245' && message === '!fart') {
                 setTimeout(fart, 2000);
+            }
+
+            else if (username === 'jabu10245' && message.startsWith('¡') && message.endsWith('!') && message.length > 2) {
+                const word = message.split(' ')[0];
+                const name = word.substring(1, word.length - 1);
+                if (name.length > 0) {
+                    anySound(name);
+                }
+            }
+
+            else if (username === 'jabu10245' && message.toLowerCase() === '... did you hear that?') {
+                anySound('knock');
             }
         }
     });
