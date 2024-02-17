@@ -75,9 +75,7 @@ function showAward(filename, duration) {
 }
 
 function fart() {
-    const audioPlayer = document.getElementById('audio');
-    audioPlayer.src = './fart.mp3';
-    audioPlayer.play().then(() => console.log('playing sfx')).catch(console.error);
+    anySound('fart');
 }
 
 function anySound(name) {
@@ -223,16 +221,12 @@ async function connect(token) {
                 setTimeout(fart, 2000);
             }
 
-            else if (username === 'jabu10245' && message.startsWith('¡') && message.endsWith('!') && message.length > 2) {
+            else if (username === 'jabu10245' && message.startsWith('!!') && message.length > 2) {
                 const word = message.split(' ')[0];
-                const name = word.substring(1, word.length - 1);
-                if (name.length > 0) {
+                const name = word.substring(2);
+                if (name.length > 1) {
                     anySound(name);
                 }
-            }
-
-            else if (username === 'jabu10245' && message.toLowerCase() === '... did you hear that?') {
-                anySound('knock');
             }
         }
     });
