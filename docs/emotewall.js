@@ -1,23 +1,24 @@
 const DEFAULT_MAX_EMOTES = 20;
 
 window.addEventListener("load", () => {
-    const { debug, channelName, maxEmotes, editOptions } = readOptionsFromParameters();
+    const { debug, channelName, size, maxEmotes, editOptions } = readOptionsFromParameters();
 
     if (!channelName?.length) {
-        showForm({ debug, channelName, maxEmotes, editOptions })
+        showForm({ debug, channelName, size, maxEmotes, editOptions })
             .then(options => writeParametersFromOptions(options));
         return;
     } else if (editOptions) {
-        showForm({ debug, channelName, maxEmotes, editOptions })
+        showForm({ debug, channelName, size, maxEmotes, editOptions })
             .then(options => writeParametersFromOptions(options));
     } else {
-        showOptions({ debug, channelName, maxEmotes, editOptions });
+        showOptions({ debug, channelName, size, maxEmotes, editOptions });
     }
 
     const emoteContext = {
         debug,
         channelName,
         maxEmotes,
+        size,
         count: {
             total: 0
         },
@@ -44,9 +45,12 @@ window.addEventListener("load", () => {
 
             const urls = collectEmotes(tags);
             if (urls?.length) {
-                const size = emoteSize(urls.length);
+                const currentSize = (size !== undefined && size !== "dynamic")
+                    ? size
+                    : emoteSize(urls.length);
+                
                 urls.forEach(url => {
-                    createEmote(url, emoteContext, size)
+                    createEmote(url, emoteContext, currentSize)
                         .then(appendImage)
                         .then(removeImage)
                         .catch(handleError);
@@ -56,9 +60,12 @@ window.addEventListener("load", () => {
             const emojiPattern = /\p{Extended_Pictographic}/ug;
             const emojis = message.match(emojiPattern);
             if (emojis?.length) {
-                const size = emoteSize(emojis.length);
+                const currentSize = (size !== undefined && size !== "dynamic")
+                    ? size
+                    : emoteSize(emojis.length);
+
                 emojis.forEach(emoji => {
-                    createEmoji(emoji, emoteContext, size)
+                    createEmoji(emoji, emoteContext, currentSize)
                         .then(appendImage)
                         .then(removeImage)
                         .catch(handleError);
@@ -74,6 +81,7 @@ function readOptionsFromParameters() {
     const options = {
         debug: false,
         maxEmotes: 0,
+        size: "dynamic",
         channelName: "",
         editOptions: false,
     };
@@ -88,6 +96,11 @@ function readOptionsFromParameters() {
 
         if (!!params.get("d")) {
             options.debug = true;
+        }
+
+        const s = params.get("s");
+        if (s === "dynamic" || s === "large" || s === "medium" || s === "small") {
+            options.size = s;
         }
 
         const max = params.get("max");
@@ -117,6 +130,7 @@ function writeParametersFromOptions(options) {
     if (options.channelName?.length) {
         params.set("c", options.channelName);
     }
+    params.set("s", options.size ?? "dynamic");
     if (options.editOptions) {
         params.set("edit", "1");
     }
@@ -134,12 +148,16 @@ async function showForm(options) {
         const maxEmotesTextfield = document.querySelector('#maxEmotes');
         maxEmotesTextfield.value = options.maxEmotes;
 
+        const sizeCombobox = document.querySelector('#size');
+        sizeCombobox.value = options.size;
+
         const apply = document.querySelector('#apply');
         apply.addEventListener("click", () => {
             const channelName = channelNameTextfield.value;
             const debug = debugCheckbox.checked;
             const maxEmotes = parseInt(maxEmotesTextfield.value) ?? 0;
-            resolve({ channelName, debug, maxEmotes });
+            const size = sizeCombobox.value;
+            resolve({ channelName, debug, size, maxEmotes });
         });
     });
 }
@@ -157,6 +175,10 @@ function showOptions(options) {
     maxEmotes.innerHTML = `<code>maxEmotes = ${options.maxEmotes}</code>`;
     document.body.appendChild(maxEmotes);
 
+    const size = document.createElement('div');
+    size.innerHTML = `<code>size = ${options.size}</code>`;
+    document.body.appendChild(size);
+
     const escapeHint = document.createElement('div');
     escapeHint.innerHTML = `<code>Press ESC to edit options.</code>`;
     document.body.appendChild(escapeHint);
@@ -168,6 +190,7 @@ function showOptions(options) {
         document.body.removeChild(channelName);
         document.body.removeChild(debug);
         document.body.removeChild(maxEmotes);
+        document.body.removeChild(size);
         document.body.removeChild(escapeHint);
     }, 2000);
 

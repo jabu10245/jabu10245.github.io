@@ -6,6 +6,9 @@ body {
     display: inline-block;
     position: absolute;
     transition: top 10s ease-out, left 10s ease-out, opacity 2s ease-out;
+}
+
+.emote.large, .emote.large img {
     width: 112px;
     height: 112px;
 }
