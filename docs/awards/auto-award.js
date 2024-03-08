@@ -228,6 +228,10 @@ async function connect(token) {
                     anySound(name);
                 }
             }
+
+            else if (username === 'Kayley_Lou' && (message.startsWith('!!yippee') || message.startsWith('!yippee'))) {
+                anySound('yippee');
+            }
         }
     });
 }
