@@ -12,6 +12,17 @@ const CLIENT_ID = "a3o2mhosy9osxod70iwb4awr9uw95y";
 const OAUTH_STATE = "auto-award-oauth-state";
 const CHANNEL_NAME = "benez256";
 
+const soundCommands = [
+    {
+        usernames: ['jabu10245'],
+        sounds: ['*'],
+    },
+    {
+        usernames: ['kayley_lou', 'heart_of_mithril', 'benez256'],
+        sounds: ['yippee'],
+    }
+];
+
 function setup() {
     removeAuthenticateButton();
 
@@ -186,6 +197,36 @@ function createClient(login, token) {
     });
 }
 
+function allowSoundCommand(username, message) {
+    if (!username?.length || !message?.length) {
+        return null;
+    }
+
+    const words = message.split(' ');
+    if (words.length < 1) {
+        return null;
+    }
+
+    const firstWord = words[0];
+    if (!firstWord.startsWith('!!')) {
+        return null;
+    }
+
+    const command = firstWord.substring(2);
+
+    const sound = soundCommands.find(({usernames, sounds}) => {
+        const matchesUser = usernames.includes(username.toLowerCase());
+        const matchesSound = sounds.includes(command.toLowerCase()) || sounds.includes('*');
+        return matchesUser && matchesSound;
+    });
+
+    if (sound === undefined) {
+        return null;
+    }
+
+    return command;
+}
+
 async function connect(token) {
     const { login } = await validateToken(token);
     const client = createClient(login, token);
@@ -221,16 +262,11 @@ async function connect(token) {
                 setTimeout(fart, 2000);
             }
 
-            else if (username === 'jabu10245' && message.startsWith('!!') && message.length > 2) {
-                const word = message.split(' ')[0];
-                const name = word.substring(2);
-                if (name.length > 1) {
-                    anySound(name);
+            else {
+                const sound = allowSoundCommand(username, message);
+                if (sound !== null) {
+                    anySound(sound);
                 }
-            }
-
-            else if ((username === 'Kayley_Lou' || username === 'heart_of_mithril') && (message.startsWith('!!yippee') || message.startsWith('!yippee'))) {
-                anySound('yippee');
             }
         }
     });
