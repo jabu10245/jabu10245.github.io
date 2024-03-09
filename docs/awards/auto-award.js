@@ -229,7 +229,7 @@ async function connect(token) {
                 }
             }
 
-            else if (username === 'Kayley_Lou' && (message.startsWith('!!yippee') || message.startsWith('!yippee'))) {
+            else if ((username === 'Kayley_Lou' || username === 'heart_of_mithril') && (message.startsWith('!!yippee') || message.startsWith('!yippee'))) {
                 anySound('yippee');
             }
         }
