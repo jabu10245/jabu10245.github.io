@@ -20,6 +20,10 @@ const soundCommands = [
     {
         usernames: ['kayley_lou', 'heart_of_mithril', 'benez256'],
         sounds: ['yippee'],
+    },
+    {
+        usernames: ['nottheps1addict'],
+        sounds: ['namispep'],
     }
 ];
 
