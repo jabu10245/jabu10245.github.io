@@ -1,0 +1,55 @@
+@font-face {
+    font-family: "GamegirlClassic";
+    src: url("https://jabu10245.github.io/alerts/GamegirlClassic.ttf");
+    src: url("https://jabu10245.github.io/alerts/GamegirlClassic.ttf") format("truetype");
+}
+
+@keyframes typing {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes color-rotation {
+    0% {
+        color: red;
+    }
+    50% {
+        color: blue;
+    }
+    100% {
+        color: red;
+    }
+}
+
+body {
+    background-image: url("bg-pink.png");
+    background-repeat: no-repeat;
+    background-position: 120px 40px;
+}
+
+.message {
+    font-family: "GamegirlClassic";
+    font-size: 18pt;
+    position: absolute;
+    top: 70px;
+    left: 180px;
+    width: 660px;
+}
+
+.typewriter {
+    overflow: hidden;
+    white-space: nowrap;
+    animation: typing 3s steps(40);
+}
+
+.username {
+    animation: color-rotation 1s steps(40) infinite;
+}
+
+.message em {
+    color: darkblue;
+}

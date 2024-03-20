@@ -4,40 +4,13 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Follower Alert</title>
+        <link rel="stylesheet" href="follower-alert.css">
     </head>
     <body>
-        <style>
-            @font-face {
-                font-family: "GamegirlClassic";
-                src: url("GamegirlClassic.ttf");
-                src: url("GamegirlClassic.ttf") format("truetype");
-            }
-
-            body {
-                background-image: url("bg-pink.png");
-                background-repeat: no-repeat;
-                background-position: 120px 40px;
-            }
-
-            .message {
-                font-family: "GamegirlClassic";
-                font-size: 18pt;
-                position: absolute;
-                top: 60px;
-                left: 180px;
-                width: 660px;
-                height: 80px;
-            }
-
-            .message em {
-                color: darkblue;
-            }
-        </style>
         <img src="heart.gif" alt="heart">
         <div class="message">
-            <em>{username}</em>
-            just joined your party.
+            <div class="username">{username}</div>
+            <div class="typewriter">just joined your party.</div>
         </div>
-        <script src="follower-alert.js"></script>
     </body>
 </html>
