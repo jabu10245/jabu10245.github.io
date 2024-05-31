@@ -1,8 +1,8 @@
-const COTM_USERNAME = "NotThePS1Addict".toLowerCase();
-const MPOTM_USERNAME = "Lance1601".toLowerCase();
-const BOTH_USERNAME = "ThePS1Addict".toLowerCase();
-const IBTCOTM_USERNAME = "heart_of_mithril".toLowerCase();
-const MONTH = "2024-04";
+const COTM_USERNAME = "heart_of_mithril".toLowerCase();
+const MPOTM_USERNAME = "ThePS1Addict".toLowerCase();
+const BOTM_USERNAME = "Necrokeys".toLowerCase();
+const IBTCOTM_USERNAME = "babylonzool".toLowerCase();
+const MONTH = "2024-05";
 const COTM_FILENAME = `cotm-${MONTH}`;
 const MPOTM_FILENAME = `mpotm-${MONTH}`;
 const BOTM_FILENAME = `botm-${MONTH}`;
@@ -41,7 +41,7 @@ function setup() {
     
     else if (params.has('token')) {
         connect(params.get('token'))
-            .then(() => console.log(`Connected to chat and waiting for a message from ${COTM_USERNAME} or ${BOTH_USERNAME}.`))
+            .then(() => console.log(`Connected to chat and waiting for a message from ${COTM_USERNAME} or ${BOTM_USERNAME}.`))
             .catch(() => createAuthenticateButton("Error connecting to Twitch"));
     }
     
@@ -257,7 +257,7 @@ async function connect(token) {
                 userMessaged(username);
             }
 
-            else if (username === BOTH_USERNAME && !didUserMessage(username)) {
+            else if (username === BOTM_USERNAME && !didUserMessage(username)) {
                 showAward(`${BOTM_FILENAME}?nofooter`, DURATION);
                 userMessaged(username);
             }
