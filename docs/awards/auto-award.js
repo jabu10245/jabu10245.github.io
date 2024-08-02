@@ -18,7 +18,7 @@ const soundCommands = [
         sounds: ['*'],
     },
     {
-        usernames: ['kayley_lou', 'heart_of_mithril', 'benez256'],
+        usernames: ['kayos_theory', 'heart_of_mithril', 'benez256'],
         sounds: ['yippee'],
     },
     {
