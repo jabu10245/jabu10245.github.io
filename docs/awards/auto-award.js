@@ -24,6 +24,10 @@ const soundCommands = [
     {
         usernames: ['nottheps1addict'],
         sounds: ['namispep'],
+    },
+    {
+        usernames: ['theps1addict'],
+        sounds: ['thepsone'],
     }
 ];
 
