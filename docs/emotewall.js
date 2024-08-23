@@ -1,17 +1,22 @@
 const DEFAULT_MAX_EMOTES = 20;
 
 window.addEventListener("load", () => {
-    const { debug, channelName, size, maxEmotes, editOptions } = readOptionsFromParameters();
+    const { debug, channelName, size, mode, maxEmotes, editOptions } = readOptionsFromParameters();
 
     if (!channelName?.length) {
-        showForm({ debug, channelName, size, maxEmotes, editOptions })
+        showForm({ debug, channelName, size, mode, maxEmotes, editOptions })
             .then(options => writeParametersFromOptions(options));
         return;
     } else if (editOptions) {
-        showForm({ debug, channelName, size, maxEmotes, editOptions })
+        showForm({ debug, channelName, size, mode, maxEmotes, editOptions })
             .then(options => writeParametersFromOptions(options));
     } else {
-        showOptions({ debug, channelName, size, maxEmotes, editOptions });
+        showOptions({ debug, channelName, size, mode, maxEmotes, editOptions });
+    }
+
+    let setupEmote = simpleMovingEmotes;
+    if (mode === 'bouncy') {
+        setupEmote = bouncyMovingEmotes;
     }
 
     const emoteContext = {
@@ -19,10 +24,11 @@ window.addEventListener("load", () => {
         channelName,
         maxEmotes,
         size,
+        mode,
         count: {
             total: 0
         },
-        setupEmote: simpleMovingEmotes,
+        setupEmote,
     };
     
     const client = new tmi.Client({
@@ -82,6 +88,7 @@ function readOptionsFromParameters() {
         debug: false,
         maxEmotes: 0,
         size: "dynamic",
+        mode: "default",
         channelName: "",
         editOptions: false,
     };
@@ -103,6 +110,11 @@ function readOptionsFromParameters() {
             options.size = s;
         }
 
+        const m = params.get("m");
+        if (m === "default" || m === "bouncy") {
+            options.mode = m;
+        }
+
         const max = params.get("max");
         if (!!max) {
             options.maxEmotes = parseInt(max);
@@ -121,7 +133,6 @@ function readOptionsFromParameters() {
 }
 
 function writeParametersFromOptions(options) {
-    console.log('*** options', options);
     const params = new URLSearchParams();
     if (options.debug) {
         params.set("d", "1");
@@ -131,6 +142,7 @@ function writeParametersFromOptions(options) {
         params.set("c", options.channelName);
     }
     params.set("s", options.size ?? "dynamic");
+    params.set("m", options.mode ?? "default");
     if (options.editOptions) {
         params.set("edit", "1");
     }
@@ -151,13 +163,21 @@ async function showForm(options) {
         const sizeCombobox = document.querySelector('#size');
         sizeCombobox.value = options.size;
 
+        const modeCombobox = document.querySelector('#mode');
+        modeCombobox.value = options.mode;
+
+        const modeDescription = document.querySelector('#mode_description');
+        modeDescription.innerHTML = describeMode(options.mode);
+        modeCombobox.addEventListener('change', () => modeDescription.innerHTML = describeMode(modeCombobox.value));
+
         const apply = document.querySelector('#apply');
         apply.addEventListener("click", () => {
             const channelName = channelNameTextfield.value;
             const debug = debugCheckbox.checked;
             const maxEmotes = parseInt(maxEmotesTextfield.value) ?? 0;
             const size = sizeCombobox.value;
-            resolve({ channelName, debug, size, maxEmotes });
+            const mode = modeCombobox.value;
+            resolve({ channelName, debug, size, mode, maxEmotes });
         });
     });
 }
@@ -179,6 +199,10 @@ function showOptions(options) {
     size.innerHTML = `<code>size = ${options.size}</code>`;
     document.body.appendChild(size);
 
+    const mode = document.createElement('div');
+    mode.innerHTML = `<code>mode = ${options.mode}</code>`;
+    document.body.appendChild(mode);
+
     const escapeHint = document.createElement('div');
     escapeHint.innerHTML = `<code>Press ESC to edit options.</code>`;
     document.body.appendChild(escapeHint);
@@ -191,6 +215,7 @@ function showOptions(options) {
         document.body.removeChild(debug);
         document.body.removeChild(maxEmotes);
         document.body.removeChild(size);
+        document.body.removeChild(mode);
         document.body.removeChild(escapeHint);
     }, 2000);
 
@@ -226,6 +251,14 @@ function emoteSize(n) {
         return 'medium';
     } else {
         return 'large';
+    }
+}
+
+function describeMode(mode) {
+    if (mode === "bouncy") {
+        return "Emotes move across the screen and bounce off the window edges like the classic DVD screensaver.";
+    } else {
+        return "Emotes move in a random direction at a random speed and disappear.";
     }
 }
 
@@ -345,5 +378,73 @@ function simpleMovingEmotes(emote) {
         emote.element.style.opacity = 0;
     }, emote.time.untilAppending + emote.time.untilRemoval - 2000);
     
+    return emote;
+}
+
+function bouncyMovingEmotes(emote) {
+    emote.time.untilAppending = Math.random() * 5000; // append after random delay up to 5s
+    emote.time.untilRemoval = 15000;                  // remove after 15s
+
+    const w = window?.innerWidth ?? document?.documentElement?.clientWidth ?? document?.body?.clientWidth ?? 1;
+    const h = window?.innerHeight ?? document?.documentElement?.clientHeight ?? document?.body?.clientHeight ?? 1;
+    const fps = 60;
+    const speed = (w / fps) * 0.2; // 5s to cross the canvas width
+
+    if (emote.url?.length) {
+        emote.element.classList.add('emote');
+    } else {
+        emote.element.classList.add('emoji');
+    }
+    emote.element.classList.add(emote.size);
+    emote.element.classList.add('fps');
+
+    const x = Math.random() * w * 0.5 + w * 0.25;
+    const y = Math.random() * h * 0.5 + h * 0.25;
+
+    emote.element.style.left = `${x}px`;
+    emote.element.style.top = `${y}px`;
+    emote.element.style.opacity = 0;
+    emote.velocity = {
+        x: Math.random() < 0.5 ? -speed : speed,
+        y: Math.random() < 0.5 ? -speed : speed,
+    };
+    emote.visible = false;
+
+    // Start fading them in after 200ms, which takes 2s.
+    setTimeout(() => {
+        emote.element.style.opacity = 1;
+        emote.visible = true;
+    }, emote.time.untilAppending + 200);
+
+    const updatePosition = setInterval(() => {
+        if (!emote.visible) {
+            return;
+        }
+
+        const rect = emote.element.getBoundingClientRect();
+        if ((rect.x + rect.width) >= w) {
+            emote.velocity.x = -emote.velocity.x;
+        } else if (rect.x <= 0) {
+            emote.velocity.x = -emote.velocity.x;
+        }
+        if ((rect.y + rect.height) >= h) {
+            emote.velocity.y = -emote.velocity.y;
+        } else if (rect.y <= 0) {
+            emote.velocity.y = -emote.velocity.y;
+        }
+
+        const x = rect.x + emote.velocity.x;
+        const y = rect.y + emote.velocity.y;
+
+        emote.element.style.left = `${x}px`;
+        emote.element.style.top = `${y}px`;
+    }, 1000 / fps);
+
+    // Start fading them out after 8s, which takes 2s.
+    setTimeout(() => {
+        emote.element.style.opacity = 0;
+        clearInterval(updatePosition);
+    }, emote.time.untilAppending + emote.time.untilRemoval - 2000);
+
     return emote;
 }

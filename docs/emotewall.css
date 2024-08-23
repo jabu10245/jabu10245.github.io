@@ -2,10 +2,16 @@ body {
     overflow: hidden;
 }
 
-.emote, .emoji {
+.emote:not(.fps), .emoji:not(.fps) {
     display: inline-block;
     position: absolute;
     transition: top 10s ease-out, left 10s ease-out, opacity 2s ease-out;
+}
+
+.emote.fps, .emoji.fps {
+    display: inline-block;
+    position: absolute;
+    transition: top calc(1/60)s ease-out, left calc(1/60)s ease-out, opacity 1s ease-out;
 }
 
 .emote.large, .emote.large img {
