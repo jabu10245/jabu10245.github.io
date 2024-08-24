@@ -1,17 +1,17 @@
 const DEFAULT_MAX_EMOTES = 20;
 
 window.addEventListener("load", () => {
-    const { debug, channelName, size, mode, maxEmotes, editOptions } = readOptionsFromParameters();
+    const { debug, channelName, size, mode, modulateColors, maxEmotes, editOptions } = readOptionsFromParameters();
 
     if (!channelName?.length) {
-        showForm({ debug, channelName, size, mode, maxEmotes, editOptions })
+        showForm({ debug, channelName, size, mode, modulateColors, maxEmotes, editOptions })
             .then(options => writeParametersFromOptions(options));
         return;
     } else if (editOptions) {
-        showForm({ debug, channelName, size, mode, maxEmotes, editOptions })
+        showForm({ debug, channelName, size, mode, modulateColors, maxEmotes, editOptions })
             .then(options => writeParametersFromOptions(options));
     } else {
-        showOptions({ debug, channelName, size, mode, maxEmotes, editOptions });
+        showOptions({ debug, channelName, size, mode, modulateColors, maxEmotes, editOptions });
     }
 
     let setupEmote = simpleMovingEmotes;
@@ -25,6 +25,7 @@ window.addEventListener("load", () => {
         maxEmotes,
         size,
         mode,
+        modulateColors,
         count: {
             total: 0
         },
@@ -89,6 +90,7 @@ function readOptionsFromParameters() {
         maxEmotes: 0,
         size: "dynamic",
         mode: "default",
+        modulateColors: true,
         channelName: "",
         editOptions: false,
     };
@@ -113,6 +115,11 @@ function readOptionsFromParameters() {
         const m = params.get("m");
         if (m === "default" || m === "bouncy") {
             options.mode = m;
+        }
+
+        if (options.mode === "bouncy") {
+            const value = params.get("modulate");
+            options.modulateColors = value !== "0" && value !== 0 && value !== "false" && value !== false && value !== "off";
         }
 
         const max = params.get("max");
@@ -143,6 +150,9 @@ function writeParametersFromOptions(options) {
     }
     params.set("s", options.size ?? "dynamic");
     params.set("m", options.mode ?? "default");
+    if (!options.modulateColors) {
+        params.set("modulate", "0");
+    }
     if (options.editOptions) {
         params.set("edit", "1");
     }
@@ -170,6 +180,11 @@ async function showForm(options) {
         modeDescription.innerHTML = describeMode(options.mode);
         modeCombobox.addEventListener('change', () => modeDescription.innerHTML = describeMode(modeCombobox.value));
 
+        const modulateColorsCheckbox = document.querySelector('#modulateColors');
+        modulateColorsCheckbox.checked = options.modulateColors;
+        modulateColorsCheckbox.disabled = options.mode !== "bouncy";
+        modeCombobox.addEventListener('change', () => modulateColorsCheckbox.disabled = modeCombobox.value !== "bouncy");
+
         const apply = document.querySelector('#apply');
         apply.addEventListener("click", () => {
             const channelName = channelNameTextfield.value;
@@ -177,7 +192,8 @@ async function showForm(options) {
             const maxEmotes = parseInt(maxEmotesTextfield.value) ?? 0;
             const size = sizeCombobox.value;
             const mode = modeCombobox.value;
-            resolve({ channelName, debug, size, mode, maxEmotes });
+            const modulateColors = modulateColorsCheckbox.checked
+            resolve({ channelName, debug, size, mode, modulateColors, maxEmotes });
         });
     });
 }
@@ -203,6 +219,12 @@ function showOptions(options) {
     mode.innerHTML = `<code>mode = ${options.mode}</code>`;
     document.body.appendChild(mode);
 
+    const modulateColors = document.createElement('div');
+    if (options.mode === "bouncy") {
+        modulateColors.innerHTML = `<code>modulateColors = ${options.modulateColors ? "on" : "off"}</code>`;
+    }
+    document.body.appendChild(modulateColors);
+
     const escapeHint = document.createElement('div');
     escapeHint.innerHTML = `<code>Press ESC to edit options.</code>`;
     document.body.appendChild(escapeHint);
@@ -216,6 +238,7 @@ function showOptions(options) {
         document.body.removeChild(maxEmotes);
         document.body.removeChild(size);
         document.body.removeChild(mode);
+        document.body.removeChild(modulateColors)
         document.body.removeChild(escapeHint);
     }, 2000);
 
@@ -389,6 +412,7 @@ function bouncyMovingEmotes(emote) {
     const h = window?.innerHeight ?? document?.documentElement?.clientHeight ?? document?.body?.clientHeight ?? 1;
     const fps = 60;
     const speed = (w / fps) * 0.2; // 5s to cross the canvas width
+    const color_modulate_steps = 8;
 
     if (emote.url?.length) {
         emote.element.classList.add('emote');
@@ -412,6 +436,7 @@ function bouncyMovingEmotes(emote) {
         x: false,
         y: false,
     };
+    emote.colorModulate = 0;
     emote.visible = false;
 
     // Start fading them in after 200ms, which takes 2s.
@@ -429,27 +454,40 @@ function bouncyMovingEmotes(emote) {
         if ((rect.x + rect.width) >= w) {
             emote.velocity.x = -emote.velocity.x;
             emote.flipped.x = !emote.flipped.x;
-            // emote.element.style.transform = `rotateX(180deg)`;
+            if (emote.context.modulateColors) {
+                emote.colorModulate = (emote.colorModulate + 1) % color_modulate_steps;
+            }
         } else if (rect.x <= 0) {
             emote.velocity.x = -emote.velocity.x;
             emote.flipped.x = !emote.flipped.x;
+            if (emote.context.modulateColors) {
+                emote.colorModulate = (emote.colorModulate + 1) % color_modulate_steps;
+            }
         }
         if ((rect.y + rect.height) >= h) {
             emote.velocity.y = -emote.velocity.y;
             emote.flipped.y = !emote.flipped.y;
+            if (emote.context.modulateColors) {
+                emote.colorModulate = (emote.colorModulate + 1) % color_modulate_steps;
+            }
         } else if (rect.y <= 0) {
             emote.velocity.y = -emote.velocity.y;
             emote.flipped.y = !emote.flipped.y;
+            if (emote.context.modulateColors) {
+                emote.colorModulate = (emote.colorModulate + 1) % color_modulate_steps;
+            }
         }
 
         const x = rect.x + emote.velocity.x;
         const y = rect.y + emote.velocity.y;
         const tx = emote.flipped.x ? `rotateY(180deg)` : `rotateY(0)`;
         const ty = emote.flipped.y ? `rotateX(180deg)` : `rotateX(0)`;
+        const c = 360 * emote.colorModulate / color_modulate_steps;
 
         emote.element.style.left = `${x}px`;
         emote.element.style.top = `${y}px`;
         emote.element.style.transform = tx + ' ' + ty;
+        emote.element.style.filter = `hue-rotate(${c}deg)`;
     }, 1000 / fps);
 
     // Start fading them out after 8s, which takes 2s.
