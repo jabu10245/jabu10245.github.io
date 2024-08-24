@@ -408,6 +408,10 @@ function bouncyMovingEmotes(emote) {
         x: Math.random() < 0.5 ? -speed : speed,
         y: Math.random() < 0.5 ? -speed : speed,
     };
+    emote.flipped = {
+        x: false,
+        y: false,
+    };
     emote.visible = false;
 
     // Start fading them in after 200ms, which takes 2s.
@@ -424,20 +428,28 @@ function bouncyMovingEmotes(emote) {
         const rect = emote.element.getBoundingClientRect();
         if ((rect.x + rect.width) >= w) {
             emote.velocity.x = -emote.velocity.x;
+            emote.flipped.x = !emote.flipped.x;
+            // emote.element.style.transform = `rotateX(180deg)`;
         } else if (rect.x <= 0) {
             emote.velocity.x = -emote.velocity.x;
+            emote.flipped.x = !emote.flipped.x;
         }
         if ((rect.y + rect.height) >= h) {
             emote.velocity.y = -emote.velocity.y;
+            emote.flipped.y = !emote.flipped.y;
         } else if (rect.y <= 0) {
             emote.velocity.y = -emote.velocity.y;
+            emote.flipped.y = !emote.flipped.y;
         }
 
         const x = rect.x + emote.velocity.x;
         const y = rect.y + emote.velocity.y;
+        const tx = emote.flipped.x ? `rotateY(180deg)` : `rotateY(0)`;
+        const ty = emote.flipped.y ? `rotateX(180deg)` : `rotateX(0)`;
 
         emote.element.style.left = `${x}px`;
         emote.element.style.top = `${y}px`;
+        emote.element.style.transform = tx + ' ' + ty;
     }, 1000 / fps);
 
     // Start fading them out after 8s, which takes 2s.
