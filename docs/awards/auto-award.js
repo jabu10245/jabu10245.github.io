@@ -222,6 +222,13 @@ function allowSoundCommand(username, message) {
 
     const command = firstWord.substring(2);
 
+    if (['behindyou', 'beware', 'jumpscare', 'zombie'].includes(command.toLowerCase())) {
+        const spooktober = new Date().getMonth() === 9;
+        if (spooktober) {
+            return command;
+        }
+    }
+
     const sound = soundCommands.find(({usernames, sounds}) => {
         const matchesUser = usernames.includes(username.toLowerCase());
         const matchesSound = sounds.includes(command.toLowerCase()) || sounds.includes('*');
