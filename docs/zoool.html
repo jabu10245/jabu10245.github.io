@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Zoool</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Londrina+Outline&display=swap');
+            body {
+                background-color: black;
+                font-family: "Geist Mono", monospace;
+                font-optical-sizing: auto;
+                font-weight: normal;
+                font-style: normal;
+            }
+            div {
+                display: inline-block;
+                margin-left: 0.5rem;
+                margin-right: 0.5rem;
+                margin-top: 0.2rem;
+            }
+            div.color0 {
+                color: #9b5de5;
+            }
+            div.color1 {
+                color: #f15bb5;
+            }
+            div.color2 {
+                color: #fee440;
+            }
+            div.color3 {
+                color: #00bbf9;
+            }
+            div.color4 {
+                color: #00f5d4;
+            }
+        </style>
+    </head>
+    <body>
+        <script>
+            const commandsString = `
+!adulteducation
+!adventurer
+!bandit
+!bingo
+!blow
+!blowitout
+!bringthepain
+!comegetsome
+!confession
+!deepthroat
+!discipline
+!dontlookdangerous
+!drawers
+!easy
+!F
+!fatality
+!filthyrat
+!foreplay
+!gamble
+!gimmeabreak
+!goodbye
+!goodofyoutodropby
+!growup
+!guesswhatno
+!hadoken
+!hailtotheking
+!haircut
+!hay
+!hmm
+!Igotsomethingforya
+!iknowyou
+!iwillnotdie
+!join
+!kidder
+!letdown
+!lovelypair
+!mokey
+!myboys
+!mymeat
+!nailinganalien
+!nowyoudont
+!nuts
+!objection
+!ouch
+!outstanding
+!penis
+!pig
+!pizzatime
+!ps1
+!qualitytime
+!qualitytimewithyou
+!quickie
+!raar
+!soreloser
+!space
+!specialherb
+!thatsme
+!thatsuseful
+!thc
+!thebees
+!therewego
+!therewolf
+!thirsty
+!toasty
+!ufodetected
+!victory
+!warning
+!whitesausage
+!wiener
+!wonderwherethisgoes
+!xcom
+!yeah
+!youguyssuck
+!youlose
+!yousuck
+!youwin
+!zzt
+!bruh
+!damnitzool
+!disappointment
+!flush
+!gg
+!gonnasmoke
+!kingofthecastle
+!lurk
+!muted
+!unlurk
+!vaffanculo
+!whistlesgowoo
+!youlistening
+!zoolmf
+!69
+!anticipation
+!beertalk
+!bestfriends
+!bigpile
+!bigsignal
+!bigtrouble
+!boothisman
+!butthead
+!caseclosed
+!children
+!dave
+!defile
+!died
+!eat
+!elevatortohell
+!fail
+!fingerlickin
+!gameover
+!goaway
+!hastalavista
+!hihihi
+!hostility
+!how
+!humping
+!iamzool
+!Iloveit
+!jesuswept
+!later
+!lurk
+!nicemodel
+!noproblemo
+!norespect
+!oi
+!onlyzool
+!orthedog
+!play
+!pog
+!priceiswrong
+!runningout
+!save
+!sayzool
+!shakeandbake
+!sights
+!slacker
+!slor
+!smelldeath
+!smokenmirrors
+!suave
+!thewinds
+!timewarp
+!torgo
+!verysorry
+!welldone
+!whathappened
+!whichwaydowego
+!youlistening
+!zool
+!zool2
+!zool3
+!zool4
+!bigdtheme
+!bowbow
+!dave
+!hulktheme
+!smoke
+!timewarp
+!amateurhour
+!bringo
+!coolhair
+!diarrhea
+!diasppointed
+!doitlive
+!embarrassing
+!fuckit
+!fuckingthing
+!getiton
+!gimmeasmoke
+!haha
+!hint
+!illwriteit
+!live
+!milk
+!numberwang
+!shrooms
+!shutup
+!tension
+!thingsucks
+!tobefair
+!wrong`;
+            
+
+            window.addEventListener('load', () => {
+                const commands = commandsString
+                    .trim()
+                    .split('\n')
+                    .map((command) => command.trim());
+                
+                const container = document.getElementById('content');
+
+                for (let index = 0; index < commands.length; ++index) {
+                    const command = commands[index];
+                    const element = document.createElement('div');
+                    element.innerHTML = command;
+                    element.classList.add(`color${index % 5}`);
+                    document.body.appendChild(element);
+                }
+            });
+        </script>
+    </body>
+</html>
