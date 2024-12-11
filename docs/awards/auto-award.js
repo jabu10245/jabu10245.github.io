@@ -1,3 +1,4 @@
+const ENABLED = false;
 const COTM_USERNAME = "Jabu10245".toLowerCase();
 const MPOTM_USERNAME = "Major_Postal".toLowerCase();
 const BOTM_USERNAME = "benez256".toLowerCase();
@@ -74,6 +75,10 @@ async function after(milliseconds, command) {
 }
 
 function showAward(filename, duration) {
+    if (!ENABLED) {
+        return;
+    }
+    
     const iframe = document.createElement("iframe");
     iframe.setAttribute("src", filename);
     iframe.classList.add("award");
