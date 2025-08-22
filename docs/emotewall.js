@@ -1,17 +1,17 @@
 const DEFAULT_MAX_EMOTES = 20;
 
 window.addEventListener("load", () => {
-    const { debug, channelName, size, mode, modulateColors, maxEmotes, editOptions } = readOptionsFromParameters();
+    const { debug, channelName, size, mode, modulateColors, maxEmotesPerMessage, maxEmotesTotal, reverseOrder, editOptions } = readOptionsFromParameters();
 
     if (!channelName?.length) {
-        showForm({ debug, channelName, size, mode, modulateColors, maxEmotes, editOptions })
+        showForm({ debug, channelName, size, mode, modulateColors, maxEmotesPerMessage, maxEmotesTotal, reverseOrder, editOptions })
             .then(options => writeParametersFromOptions(options));
         return;
     } else if (editOptions) {
-        showForm({ debug, channelName, size, mode, modulateColors, maxEmotes, editOptions })
+        showForm({ debug, channelName, size, mode, modulateColors, maxEmotesPerMessage, maxEmotesTotal, reverseOrder, editOptions })
             .then(options => writeParametersFromOptions(options));
     } else {
-        showOptions({ debug, channelName, size, mode, modulateColors, maxEmotes, editOptions });
+        showOptions({ debug, channelName, size, mode, modulateColors, maxEmotesPerMessage, maxEmotesTotal, reverseOrder, editOptions });
     }
 
     let setupEmote = simpleMovingEmotes;
@@ -22,7 +22,9 @@ window.addEventListener("load", () => {
     const emoteContext = {
         debug,
         channelName,
-        maxEmotes,
+        maxEmotesPerMessage,
+        maxEmotesTotal,
+        reverseOrder,
         size,
         mode,
         modulateColors,
@@ -54,9 +56,9 @@ window.addEventListener("load", () => {
             if (urls?.length) {
                 const currentSize = (size !== undefined && size !== "dynamic")
                     ? size
-                    : emoteSize(urls.length);
+                    : emoteSize(urls.length, emoteContext);
                 
-                urls.forEach(url => {
+                (reverseOrder ? urls.reverse() : urls).forEach(url => {
                     createEmote(url, emoteContext, currentSize)
                         .then(appendImage)
                         .then(removeImage)
@@ -69,9 +71,9 @@ window.addEventListener("load", () => {
             if (emojis?.length) {
                 const currentSize = (size !== undefined && size !== "dynamic")
                     ? size
-                    : emoteSize(emojis.length);
+                    : emoteSize(emojis.length, emoteContext);
 
-                emojis.forEach(emoji => {
+                (reverseOrder ? emojis.reverse() : emojis).forEach(emoji => {
                     createEmoji(emoji, emoteContext, currentSize)
                         .then(appendImage)
                         .then(removeImage)
@@ -87,7 +89,9 @@ window.addEventListener("load", () => {
 function readOptionsFromParameters() {
     const options = {
         debug: false,
-        maxEmotes: 0,
+        maxEmotesPerMessage: 0,
+        maxEmotesTotal: 0,
+        reverseOrder: false,
         size: "dynamic",
         mode: "default",
         modulateColors: true,
@@ -117,6 +121,10 @@ function readOptionsFromParameters() {
             options.mode = m;
         }
 
+        if (!!params.get("rev")) {
+            options.reverseOrder = true;
+        }
+
         if (options.mode === "bouncy") {
             const value = params.get("modulate");
             options.modulateColors = value !== "0" && value !== 0 && value !== "false" && value !== false && value !== "off";
@@ -124,16 +132,24 @@ function readOptionsFromParameters() {
 
         const max = params.get("max");
         if (!!max) {
-            options.maxEmotes = parseInt(max);
+            options.maxEmotesPerMessage = parseInt(max);
         } else {
-            options.maxEmotes = DEFAULT_MAX_EMOTES;
+            options.maxEmotesPerMessage = DEFAULT_MAX_EMOTES;
+        }
+
+        const total = params.get("total");
+        if (!!total) {
+            options.maxEmotesTotal = parseInt(total);
+        } else {
+            options.maxEmotesTotal = 0;
         }
 
         if (!!params.get("edit")) {
             options.editOptions = true;
         }
     } else {
-        options.maxEmotes = DEFAULT_MAX_EMOTES;
+        options.maxEmotesPerMessage = DEFAULT_MAX_EMOTES;
+        options.maxEmotesTotal = 0;
     }
 
     return options;
@@ -144,7 +160,11 @@ function writeParametersFromOptions(options) {
     if (options.debug) {
         params.set("d", "1");
     }
-    params.set("max", `${options.maxEmotes}`);
+    params.set("max", `${options.maxEmotesPerMessage}`);
+    params.set("total", `${options.maxEmotesTotal}`);
+    if (options.reverseOrder) {
+        params.set("rev", "1");
+    }
     if (options.channelName?.length) {
         params.set("c", options.channelName);
     }
@@ -167,8 +187,14 @@ async function showForm(options) {
         const debugCheckbox = document.querySelector('#debug');
         debugCheckbox.checked = options.debug;
 
-        const maxEmotesTextfield = document.querySelector('#maxEmotes');
-        maxEmotesTextfield.value = options.maxEmotes;
+        const maxEmotesPerMessageTextfield = document.querySelector('#maxEmotesPerMessage');
+        maxEmotesPerMessageTextfield.value = options.maxEmotesPerMessage;
+
+        const maxEmotesTotalTextfield = document.querySelector('#maxEmotesTotal');
+        maxEmotesTotalTextfield.value = options.maxEmotesTotal;
+
+        const reverseOrderCheckbox = document.querySelector('#reverseOrder');
+        reverseOrderCheckbox.checked = options.reverseOrder;
 
         const sizeCombobox = document.querySelector('#size');
         sizeCombobox.value = options.size;
@@ -189,11 +215,13 @@ async function showForm(options) {
         apply.addEventListener("click", () => {
             const channelName = channelNameTextfield.value;
             const debug = debugCheckbox.checked;
-            const maxEmotes = parseInt(maxEmotesTextfield.value) ?? 0;
+            const maxEmotesPerMessage = parseInt(maxEmotesPerMessageTextfield.value) ?? 0;
+            const maxEmotesTotal = parseInt(maxEmotesTotalTextfield.value) ?? 0;
+            const reverseOrder = reverseOrderCheckbox.checked;
             const size = sizeCombobox.value;
             const mode = modeCombobox.value;
             const modulateColors = modulateColorsCheckbox.checked
-            resolve({ channelName, debug, size, mode, modulateColors, maxEmotes });
+            resolve({ channelName, debug, size, mode, modulateColors, maxEmotesPerMessage, maxEmotesTotal, reverseOrder });
         });
     });
 }
@@ -207,9 +235,17 @@ function showOptions(options) {
     debug.innerHTML = `<code>debug = ${options.debug ? "on" : "off"}</code>`;
     document.body.appendChild(debug);
 
-    const maxEmotes = document.createElement('div');
-    maxEmotes.innerHTML = `<code>maxEmotes = ${options.maxEmotes}</code>`;
-    document.body.appendChild(maxEmotes);
+    const maxEmotesPerMessage = document.createElement('div');
+    maxEmotesPerMessage.innerHTML = `<code>maxEmotesPerMessage = ${options.maxEmotesPerMessage}</code>`;
+    document.body.appendChild(maxEmotesPerMessage);
+
+    const maxEmotesTotal = document.createElement('div');
+    maxEmotesTotal.innerHTML = `<code>maxEmotesTotal = ${options.maxEmotesTotal}</code>`;
+    document.body.appendChild(maxEmotesTotal);
+
+    const reverseOrder = document.createElement('div');
+    reverseOrder.innerHTML = `<code>reverseOrder = ${options.reverseOrder ? "on" : "off"}</code>`;
+    document.body.appendChild(reverseOrder);
 
     const size = document.createElement('div');
     size.innerHTML = `<code>size = ${options.size}</code>`;
@@ -235,7 +271,9 @@ function showOptions(options) {
     setTimeout(() => {
         document.body.removeChild(channelName);
         document.body.removeChild(debug);
-        document.body.removeChild(maxEmotes);
+        document.body.removeChild(maxEmotesPerMessage);
+        document.body.removeChild(maxEmotesTotal);
+        document.body.removeChild(reverseOrder);
         document.body.removeChild(size);
         document.body.removeChild(mode);
         document.body.removeChild(modulateColors)
@@ -253,24 +291,35 @@ function showOptions(options) {
 
 function collectEmotes(tags) {
     const { emotes } = tags;
-    const urls = [];
+    const keyedEmotes = [];
 
     if (emotes) {
         Object.keys(emotes).forEach(key => {
             const url = `https://static-cdn.jtvnw.net/emoticons/v2/${key}/default/dark/3.0`;
             emotes[key].forEach(emote => {
-                urls.push(url);
+                const startIndex = emote.split('-')[0];
+                keyedEmotes.push({ startIndex, url });
             })
         });
     }
 
-    return urls;
+    return keyedEmotes
+        .sort((a, b) => a.startIndex - b.startIndex)
+        .map((next) => next.url);
 }
 
-function emoteSize(n) {
-    if (n > 5) {
+function determineMaxEmoteCount(context) {
+    const maxEmotesPerMessage = (!context.maxEmotesPerMessage || isNaN(context.maxEmotesPerMessage)) ? 10000 : +context.maxEmotesPerMessage;
+    const maxEmotesTotal = (!context.maxEmotesTotal || isNaN(context.maxEmotesTotal)) ? 10000 : +context.maxEmotesTotal;
+    return Math.min(maxEmotesPerMessage, maxEmotesTotal);
+}
+
+function emoteSize(n, context) {
+    const value = Math.min(n, determineMaxEmoteCount(context));
+
+    if (value > 5) {
         return 'small';
-    } else if (n > 1) {
+    } else if (value > 1) {
         return 'medium';
     } else {
         return 'large';
@@ -287,7 +336,11 @@ function describeMode(mode) {
 
 async function createEmoji(emoji, context, size) {
     const countByEmoji = context.count[emoji] ?? 0;
-    if (context.maxEmotes > 0 && countByEmoji >= context.maxEmotes) {
+    const maxCount = determineMaxEmoteCount(context);
+    if (maxCount > 0 && countByEmoji >= maxCount) {
+        return Promise.reject('too many');
+    }
+    if (maxCount > 0 && context.count.total >= maxCount) {
         return Promise.reject('too many');
     }
 
@@ -310,7 +363,11 @@ async function createEmoji(emoji, context, size) {
 
 async function createEmote(url, context, size) {
     const countByURL = context.count[url] ?? 0;
-    if (context.maxEmotes > 0 && countByURL >= context.maxEmotes) {
+    const maxCount = determineMaxEmoteCount(context);
+    if (maxCount > 0 && countByURL >= maxCount) {
+        return Promise.reject('too many');
+    }
+    if (maxCount > 0 && context.count.total >= maxCount) {
         return Promise.reject('too many');
     }
 
